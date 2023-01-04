@@ -1,7 +1,31 @@
 import { Form, FormLabel, FormBtn } from './ContactForm.styled';
-import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
 
-export const ContactForm = ({ onFormSubmit }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
+  const onFormSubmit = evt => {
+    evt.preventDefault();
+    const contactName = evt.currentTarget.elements.name.value;
+    const contactPhone = evt.currentTarget.elements.number.value;
+
+    if (searchForDublicate(contactName)) {
+      evt.currentTarget.reset();
+      return alert(`${contactName} is already in contacts.`);
+    }
+
+    dispatch(addContact(contactName, contactPhone));
+
+    evt.currentTarget.reset();
+  };
+
+  const searchForDublicate = searchedName => {
+    return contacts.some(contact => contact.name === searchedName);
+  };
+
   return (
     <Form id={'form'} onSubmit={onFormSubmit}>
       <FormLabel htmlFor="name">Name: </FormLabel>
@@ -23,8 +47,4 @@ export const ContactForm = ({ onFormSubmit }) => {
       <FormBtn type="submit">Add contact</FormBtn>
     </Form>
   );
-};
-
-ContactForm.propTypes = {
-  onFormSubmit: PropTypes.func.isRequired,
 };
